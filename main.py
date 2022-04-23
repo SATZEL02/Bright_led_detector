@@ -1,7 +1,6 @@
 import numpy as np
 import cv2
 import argparse
-import matplotlib.pyplot as plt
 # ---- Useful functions ----
 
 
@@ -40,13 +39,6 @@ def grey_histogram(img, nBins=64):
     hist_size = [nBins]
     h_ranges = [0, 256]
     hist = cv2.calcHist(img,[0],None,hist_size, h_ranges)
-    # plt.figure()
-    # plt.title("Grayscale Histogram")
-    # plt.xlabel("Bins")
-    # plt.ylabel("# of Pixels")
-    # plt.plot(hist)
-    # plt.xlim([0, 256])
-    # plt.show()
     return hist
 
 
@@ -70,8 +62,6 @@ def extract_bright(grey_img, histogram=False):
         hist = grey_histogram(grey_img, nBins=64)
         [hminValue, hmaxValue, hminIdx, hmaxIdx] = cv2.minMaxLoc(hist)
         margin = 244  # statistics to be calculated using hist data
-    else:
-        margin = 0.995
 
     thresh = int(margin) # in pix value to be extracted
     threshi = 0
@@ -108,7 +98,7 @@ def find_leds(thresh_img):
         if not pts: break
         for [pt] in c:
             nearest = min(pts, key=lambda b: pointDist(pt, b))
-            if pointDist(pt, nearest) <= 1:
+            if pointDist(pt, nearest) <= 15:
                 cv2.line(img, tuple(pt), tuple(nearest), (0, 255, 0), 3)
     while(outputi<=9):
             outputi +=1 
@@ -119,19 +109,9 @@ def find_leds(thresh_img):
                 print('x')
     return img
 
-def leds_positions(regions):
-    """
-    Function using the regions in input to calculate the position of found leds
-    """
-    centers = []
-    for x, y, width, height in regions:
-        centers.append([x + (width / 2), y + (height / 2)])
-
-    return centers
-
 
 if __name__ == '__main__':
-    url = 'https://192.168.18.138:8080/video'
+    url = 'ipwebcam address/video'
     video_file = cv2.VideoCapture(0)
     ap = argparse.ArgumentParser()
     args = vars(ap.parse_args())
